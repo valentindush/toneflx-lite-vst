@@ -264,6 +264,8 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
         ToneflxParameters::reverbMix,
         reverbMixSlider);
 
+    restoreGenerationControls();
+
     setSize(900, 940);
 }
 
@@ -289,6 +291,26 @@ juce::StringArray ToneflxLiteAudioProcessorEditor::collectSelectedDescriptors() 
         descriptors.add("dreamy");
 
     return descriptors;
+}
+
+void ToneflxLiteAudioProcessorEditor::restoreGenerationControls()
+{
+    if (! audioProcessor.hasGenerationMetadata())
+        return;
+
+    const auto seed = audioProcessor.getLastGenerationSeed();
+    seedLabel.setText("Seed " + juce::String(seed), juce::dontSendNotification);
+    seedEditor.setText(juce::String(seed), juce::dontSendNotification);
+    setDescriptorToggleStates(audioProcessor.getLastGenerationDescriptors());
+}
+
+void ToneflxLiteAudioProcessorEditor::setDescriptorToggleStates(const juce::StringArray& descriptors)
+{
+    warmButton.setToggleState(descriptors.contains("warm"), juce::dontSendNotification);
+    darkButton.setToggleState(descriptors.contains("dark"), juce::dontSendNotification);
+    vintageButton.setToggleState(descriptors.contains("vintage"), juce::dontSendNotification);
+    wideButton.setToggleState(descriptors.contains("wide"), juce::dontSendNotification);
+    dreamyButton.setToggleState(descriptors.contains("dreamy"), juce::dontSendNotification);
 }
 
 void ToneflxLiteAudioProcessorEditor::paint(juce::Graphics& g)

@@ -65,12 +65,16 @@ public:
 
     std::uint32_t generatePresetForDescriptors(const juce::StringArray& descriptors);
     std::uint32_t generatePresetForDescriptors(const juce::StringArray& descriptors, std::uint32_t seed);
+    bool hasGenerationMetadata() const;
+    std::uint32_t getLastGenerationSeed() const;
+    juce::StringArray getLastGenerationDescriptors() const;
 
     APVTS parameters;
 
 private:
     static APVTS::ParameterLayout createParameterLayout();
     void applyGeneratedPreset(const GeneratedPreset& preset);
+    void storeGenerationMetadata(const juce::StringArray& descriptors, std::uint32_t seed);
     void setParameterValue(const juce::String& parameterID, float value);
 
     SaturationModule saturation;

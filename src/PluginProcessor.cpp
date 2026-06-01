@@ -2,6 +2,12 @@
 #include "PluginEditor.h"
 #include "generators/PresetEngine.h"
 
+namespace
+{
+const juce::Identifier generationSeedProperty { "generationSeed" };
+const juce::Identifier generationDescriptorsProperty { "generationDescriptors" };
+}
+
 ToneflxLiteAudioProcessor::ToneflxLiteAudioProcessor()
     : AudioProcessor(BusesProperties()
        #if ! JucePlugin_IsMidiEffect
@@ -228,6 +234,7 @@ std::uint32_t ToneflxLiteAudioProcessor::generatePresetForDescriptors(const juce
     const auto seed = static_cast<std::uint32_t>(juce::Random::getSystemRandom().nextInt64());
     const auto preset = PresetEngine::generate(descriptors, seed);
     applyGeneratedPreset(preset);
+    storeGenerationMetadata(descriptors, seed);
 
     return seed;
 }
@@ -237,8 +244,31 @@ std::uint32_t ToneflxLiteAudioProcessor::generatePresetForDescriptors(const juce
 {
     const auto preset = PresetEngine::generate(descriptors, seed);
     applyGeneratedPreset(preset);
+    storeGenerationMetadata(descriptors, seed);
 
     return seed;
+}
+
+bool ToneflxLiteAudioProcessor::hasGenerationMetadata() const
+{
+    return parameters.state.hasProperty(generationSeedProperty);
+}
+
+std::uint32_t ToneflxLiteAudioProcessor::getLastGenerationSeed() const
+{
+    return static_cast<std::uint32_t>(static_cast<int64_t>(parameters.state[generationSeedProperty]));
+}
+
+juce::StringArray ToneflxLiteAudioProcessor::getLastGenerationDescriptors() const
+{
+    auto descriptors = juce::StringArray::fromTokens(
+        parameters.state[generationDescriptorsProperty].toString(),
+        ",",
+        "");
+
+    descriptors.trim();
+    descriptors.removeEmptyStrings();
+    return descriptors;
 }
 
 void ToneflxLiteAudioProcessor::applyGeneratedPreset(const GeneratedPreset& preset)
@@ -258,6 +288,12 @@ void ToneflxLiteAudioProcessor::applyGeneratedPreset(const GeneratedPreset& pres
     setParameterValue(ToneflxParameters::reverbDamping, preset.reverbDamping);
     setParameterValue(ToneflxParameters::reverbWidth, preset.reverbWidth);
     setParameterValue(ToneflxParameters::reverbMix, preset.reverbMix);
+}
+
+void ToneflxLiteAudioProcessor::storeGenerationMetadata(const juce::StringArray& descriptors, std::uint32_t seed)
+{
+    parameters.state.setProperty(generationSeedProperty, static_cast<int64_t>(seed), nullptr);
+    parameters.state.setProperty(generationDescriptorsProperty, descriptors.joinIntoString(","), nullptr);
 }
 
 void ToneflxLiteAudioProcessor::setParameterValue(const juce::String& parameterID, float value)

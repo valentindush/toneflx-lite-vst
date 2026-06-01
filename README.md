@@ -33,3 +33,5 @@ cmake --build --preset macos-debug
 Use the descriptor buttons in the plugin editor, then press `GENERATE`. The generator creates a random seed, narrows sensible parameter ranges based on the selected descriptors, and writes the result through the plugin parameters so the knobs, audio engine, automation, and saved state all update together.
 
 To recreate a sound, keep the same descriptors selected, enter the seed in the seed field, and press `RECALL`.
+
+The last generated seed and descriptor choices are stored in the plugin state, so DAW sessions can restore the generator context along with the parameter values.

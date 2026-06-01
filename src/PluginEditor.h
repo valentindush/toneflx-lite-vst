@@ -15,6 +15,8 @@ public:
 
 private:
     juce::StringArray collectSelectedDescriptors() const;
+    void restoreGenerationControls();
+    void setDescriptorToggleStates(const juce::StringArray& descriptors);
 
     ToneflxLiteAudioProcessor& audioProcessor;
 
