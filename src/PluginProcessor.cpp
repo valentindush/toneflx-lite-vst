@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "generators/PresetEngine.h"
+#include "utils/PresetJson.h"
 
 namespace
 {
