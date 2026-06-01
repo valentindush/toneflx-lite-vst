@@ -63,24 +63,7 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
     generateButton.setColour(juce::TextButton::buttonColourId, accentColour);
     generateButton.setColour(juce::TextButton::textColourOffId, backgroundColour);
     generateButton.onClick = [this] {
-        juce::StringArray descriptors;
-
-        if (warmButton.getToggleState())
-            descriptors.add("warm");
-
-        if (darkButton.getToggleState())
-            descriptors.add("dark");
-
-        if (vintageButton.getToggleState())
-            descriptors.add("vintage");
-
-        if (wideButton.getToggleState())
-            descriptors.add("wide");
-
-        if (dreamyButton.getToggleState())
-            descriptors.add("dreamy");
-
-        const auto seed = audioProcessor.generatePresetForDescriptors(descriptors);
+        const auto seed = audioProcessor.generatePresetForDescriptors(collectSelectedDescriptors());
         seedLabel.setText("Seed " + juce::String(seed), juce::dontSendNotification);
         seedEditor.setText(juce::String(seed), juce::dontSendNotification);
     };
@@ -94,25 +77,8 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
         if (seedText.isEmpty())
             return;
 
-        juce::StringArray descriptors;
-
-        if (warmButton.getToggleState())
-            descriptors.add("warm");
-
-        if (darkButton.getToggleState())
-            descriptors.add("dark");
-
-        if (vintageButton.getToggleState())
-            descriptors.add("vintage");
-
-        if (wideButton.getToggleState())
-            descriptors.add("wide");
-
-        if (dreamyButton.getToggleState())
-            descriptors.add("dreamy");
-
         const auto seed = static_cast<std::uint32_t>(seedText.getLargeIntValue());
-        audioProcessor.generatePresetForDescriptors(descriptors, seed);
+        audioProcessor.generatePresetForDescriptors(collectSelectedDescriptors(), seed);
         seedLabel.setText("Seed " + juce::String(seed), juce::dontSendNotification);
     };
     addAndMakeVisible(recallButton);
@@ -302,6 +268,28 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
 }
 
 ToneflxLiteAudioProcessorEditor::~ToneflxLiteAudioProcessorEditor() = default;
+
+juce::StringArray ToneflxLiteAudioProcessorEditor::collectSelectedDescriptors() const
+{
+    juce::StringArray descriptors;
+
+    if (warmButton.getToggleState())
+        descriptors.add("warm");
+
+    if (darkButton.getToggleState())
+        descriptors.add("dark");
+
+    if (vintageButton.getToggleState())
+        descriptors.add("vintage");
+
+    if (wideButton.getToggleState())
+        descriptors.add("wide");
+
+    if (dreamyButton.getToggleState())
+        descriptors.add("dreamy");
+
+    return descriptors;
+}
 
 void ToneflxLiteAudioProcessorEditor::paint(juce::Graphics& g)
 {

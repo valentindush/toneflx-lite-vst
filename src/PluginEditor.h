@@ -14,6 +14,8 @@ public:
     void resized() override;
 
 private:
+    juce::StringArray collectSelectedDescriptors() const;
+
     ToneflxLiteAudioProcessor& audioProcessor;
 
     juce::Label titleLabel;
