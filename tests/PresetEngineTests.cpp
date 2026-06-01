@@ -1,5 +1,6 @@
 #include <juce_core/juce_core.h>
 #include "../src/generators/PresetEngine.h"
+#include "../src/utils/PresetJson.h"
 
 #include <cmath>
 #include <iostream>
@@ -30,6 +31,25 @@ bool samePreset(const GeneratedPreset& lhs, const GeneratedPreset& rhs)
         && nearlyEqual(lhs.reverbWidth, rhs.reverbWidth)
         && nearlyEqual(lhs.reverbMix, rhs.reverbMix)
         && nearlyEqual(lhs.outputTrim, rhs.outputTrim);
+}
+
+bool sameDescriptors(const juce::StringArray& lhs, const juce::StringArray& rhs)
+{
+    if (lhs.size() != rhs.size())
+        return false;
+
+    for (auto index = 0; index < lhs.size(); ++index)
+        if (lhs[index] != rhs[index])
+            return false;
+
+    return true;
+}
+
+bool sameSnapshot(const PresetSnapshot& lhs, const PresetSnapshot& rhs)
+{
+    return lhs.name == rhs.name
+        && sameDescriptors(lhs.descriptors, rhs.descriptors)
+        && samePreset(lhs.preset, rhs.preset);
 }
 
 bool inRange(float value, float min, float max)
@@ -89,6 +109,22 @@ int main()
     if (harsh.outputTrim > -2.0f)
         return fail("Harsh descriptor should reduce output trim.");
 
-    std::cout << "PresetEngine tests passed\n";
+    PresetSnapshot snapshot;
+    snapshot.name = "Warm Dream Test";
+    snapshot.descriptors = descriptors;
+    snapshot.preset = first;
+
+    PresetSnapshot restoredSnapshot;
+    if (! PresetJson::fromJson(PresetJson::toJson(snapshot), restoredSnapshot))
+        return fail("Expected preset JSON to parse successfully.");
+
+    if (! sameSnapshot(snapshot, restoredSnapshot))
+        return fail("Expected preset JSON round trip to preserve snapshot data.");
+
+    PresetSnapshot invalidSnapshot;
+    if (PresetJson::fromJson("not json", invalidSnapshot))
+        return fail("Expected invalid preset JSON to fail parsing.");
+
+    std::cout << "Preset tests passed\n";
     return 0;
 }
