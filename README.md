@@ -28,6 +28,12 @@ cmake --preset macos-debug
 cmake --build --preset macos-debug
 ```
 
+## Test
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
 ## Descriptor Generation
 
 Use the descriptor buttons in the plugin editor, then press `GENERATE`. The generator creates a random seed, narrows sensible parameter ranges based on the selected descriptors, and writes the result through the plugin parameters so the knobs, audio engine, automation, and saved state all update together.
