@@ -1,5 +1,6 @@
 #pragma once
 
+#include <JuceHeader.h>
 #include <cstdint>
 
 struct GeneratedPreset
@@ -25,4 +26,11 @@ struct GeneratedPreset
     float reverbDamping = 0.35f;
     float reverbWidth = 0.8f;
     float reverbMix = 0.2f;
+};
+
+struct PresetSnapshot
+{
+    juce::String name { "Untitled" };
+    juce::StringArray descriptors;
+    GeneratedPreset preset;
 };

@@ -68,11 +68,14 @@ public:
     bool hasGenerationMetadata() const;
     std::uint32_t getLastGenerationSeed() const;
     juce::StringArray getLastGenerationDescriptors() const;
+    PresetSnapshot createPresetSnapshot(const juce::String& name) const;
+    void applyPresetSnapshot(const PresetSnapshot& snapshot);
 
     APVTS parameters;
 
 private:
     static APVTS::ParameterLayout createParameterLayout();
+    float getParameterValue(const juce::String& parameterID) const;
     void applyGeneratedPreset(const GeneratedPreset& preset);
     void storeGenerationMetadata(const juce::StringArray& descriptors, std::uint32_t seed);
     void setParameterValue(const juce::String& parameterID, float value);

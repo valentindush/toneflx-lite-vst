@@ -271,6 +271,45 @@ juce::StringArray ToneflxLiteAudioProcessor::getLastGenerationDescriptors() cons
     return descriptors;
 }
 
+PresetSnapshot ToneflxLiteAudioProcessor::createPresetSnapshot(const juce::String& name) const
+{
+    PresetSnapshot snapshot;
+    snapshot.name = name.trim().isEmpty() ? "Untitled" : name.trim();
+    snapshot.descriptors = getLastGenerationDescriptors();
+    snapshot.preset.seed = hasGenerationMetadata() ? getLastGenerationSeed() : 0;
+    snapshot.preset.saturationDrive = getParameterValue(ToneflxParameters::saturationDrive);
+    snapshot.preset.saturationMix = getParameterValue(ToneflxParameters::saturationMix);
+    snapshot.preset.bitcrusherDepth = juce::roundToInt(getParameterValue(ToneflxParameters::bitcrusherDepth));
+    snapshot.preset.bitcrusherRate = juce::roundToInt(getParameterValue(ToneflxParameters::bitcrusherRate));
+    snapshot.preset.bitcrusherMix = getParameterValue(ToneflxParameters::bitcrusherMix);
+    snapshot.preset.chorusRate = getParameterValue(ToneflxParameters::chorusRate);
+    snapshot.preset.chorusDepth = getParameterValue(ToneflxParameters::chorusDepth);
+    snapshot.preset.chorusMix = getParameterValue(ToneflxParameters::chorusMix);
+    snapshot.preset.delayTime = getParameterValue(ToneflxParameters::delayTime);
+    snapshot.preset.delayFeedback = getParameterValue(ToneflxParameters::delayFeedback);
+    snapshot.preset.delayMix = getParameterValue(ToneflxParameters::delayMix);
+    snapshot.preset.reverbRoomSize = getParameterValue(ToneflxParameters::reverbRoomSize);
+    snapshot.preset.reverbDamping = getParameterValue(ToneflxParameters::reverbDamping);
+    snapshot.preset.reverbWidth = getParameterValue(ToneflxParameters::reverbWidth);
+    snapshot.preset.reverbMix = getParameterValue(ToneflxParameters::reverbMix);
+
+    return snapshot;
+}
+
+void ToneflxLiteAudioProcessor::applyPresetSnapshot(const PresetSnapshot& snapshot)
+{
+    applyGeneratedPreset(snapshot.preset);
+    storeGenerationMetadata(snapshot.descriptors, snapshot.preset.seed);
+}
+
+float ToneflxLiteAudioProcessor::getParameterValue(const juce::String& parameterID) const
+{
+    if (auto* value = parameters.getRawParameterValue(parameterID))
+        return value->load();
+
+    return 0.0f;
+}
+
 void ToneflxLiteAudioProcessor::applyGeneratedPreset(const GeneratedPreset& preset)
 {
     setParameterValue(ToneflxParameters::saturationDrive, preset.saturationDrive);
