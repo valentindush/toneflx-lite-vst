@@ -86,7 +86,7 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
     configureSectionLabel(reverbSectionLabel, "REVERB");
     addAndMakeVisible(reverbSectionLabel);
 
-    for (auto* button : { &warmButton, &darkButton, &vintageButton, &wideButton, &dreamyButton })
+    for (auto* button : { &warmButton, &darkButton, &vintageButton, &harshButton, &wideButton, &dreamyButton })
     {
         configureDescriptorButton(*button);
         addAndMakeVisible(*button);
@@ -341,6 +341,9 @@ juce::StringArray ToneflxLiteAudioProcessorEditor::collectSelectedDescriptors() 
     if (vintageButton.getToggleState())
         descriptors.add("vintage");
 
+    if (harshButton.getToggleState())
+        descriptors.add("harsh");
+
     if (wideButton.getToggleState())
         descriptors.add("wide");
 
@@ -366,6 +369,7 @@ void ToneflxLiteAudioProcessorEditor::setDescriptorToggleStates(const juce::Stri
     warmButton.setToggleState(descriptors.contains("warm"), juce::dontSendNotification);
     darkButton.setToggleState(descriptors.contains("dark"), juce::dontSendNotification);
     vintageButton.setToggleState(descriptors.contains("vintage"), juce::dontSendNotification);
+    harshButton.setToggleState(descriptors.contains("harsh"), juce::dontSendNotification);
     wideButton.setToggleState(descriptors.contains("wide"), juce::dontSendNotification);
     dreamyButton.setToggleState(descriptors.contains("dreamy"), juce::dontSendNotification);
 }
@@ -449,14 +453,16 @@ void ToneflxLiteAudioProcessorEditor::resized()
 
     bounds.removeFromTop(10);
     auto descriptorRow = bounds.removeFromTop(32).withSizeKeepingCentre(564, 32);
-    constexpr auto descriptorButtonWidth = 78;
-    constexpr auto descriptorGap = 8;
+    constexpr auto descriptorButtonWidth = 68;
+    constexpr auto descriptorGap = 6;
 
     warmButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
     descriptorRow.removeFromLeft(descriptorGap);
     darkButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
     descriptorRow.removeFromLeft(descriptorGap);
     vintageButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
+    descriptorRow.removeFromLeft(descriptorGap);
+    harshButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
     descriptorRow.removeFromLeft(descriptorGap);
     wideButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
     descriptorRow.removeFromLeft(descriptorGap);

@@ -35,6 +35,7 @@ private:
     juce::TextButton warmButton { "warm" };
     juce::TextButton darkButton { "dark" };
     juce::TextButton vintageButton { "vintage" };
+    juce::TextButton harshButton { "harsh" };
     juce::TextButton wideButton { "wide" };
     juce::TextButton dreamyButton { "dreamy" };
     juce::TextButton generateButton { "GENERATE" };

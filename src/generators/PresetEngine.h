@@ -52,6 +52,15 @@ public:
                 bitMix = merge(bitMix, { 0.12f, 0.45f });
                 chorusDepth = merge(chorusDepth, { 5.0f, 16.0f });
             }
+            else if (descriptor == "harsh")
+            {
+                saturationDrive = merge(saturationDrive, { 5.0f, 10.0f });
+                saturationMix = merge(saturationMix, { 0.75f, 1.0f });
+                bitDepth = merge(bitDepth, { 4.0f, 9.0f });
+                bitRate = merge(bitRate, { 6.0f, 24.0f });
+                bitMix = merge(bitMix, { 0.28f, 0.7f });
+                reverbMix = merge(reverbMix, { 0.0f, 0.18f });
+            }
             else if (descriptor == "wide")
             {
                 chorusMix = merge(chorusMix, { 0.22f, 0.55f });
