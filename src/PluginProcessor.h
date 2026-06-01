@@ -76,6 +76,8 @@ public:
 
 private:
     static APVTS::ParameterLayout createParameterLayout();
+    static float softLimitSample(float sample);
+    static void softLimitBuffer(juce::AudioBuffer<float>& buffer);
     float getParameterValue(const juce::String& parameterID) const;
     void applyGeneratedPreset(const GeneratedPreset& preset);
     void storeGenerationMetadata(const juce::StringArray& descriptors, std::uint32_t seed);

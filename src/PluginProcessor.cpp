@@ -2,6 +2,7 @@
 #include "PluginEditor.h"
 #include "generators/PresetEngine.h"
 #include "utils/PresetJson.h"
+#include <cmath>
 
 namespace
 {
@@ -209,6 +210,8 @@ void ToneflxLiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
     if (outputTrimParameter != nullptr)
         buffer.applyGain(juce::Decibels::decibelsToGain(outputTrimParameter->load()));
+
+    softLimitBuffer(buffer);
 }
 
 bool ToneflxLiteAudioProcessor::hasEditor() const
@@ -314,6 +317,32 @@ float ToneflxLiteAudioProcessor::getParameterValue(const juce::String& parameter
         return value->load();
 
     return 0.0f;
+}
+
+float ToneflxLiteAudioProcessor::softLimitSample(float sample)
+{
+    constexpr auto threshold = 0.92f;
+    constexpr auto ceiling = 0.98f;
+    const auto magnitude = std::abs(sample);
+
+    if (magnitude <= threshold)
+        return sample;
+
+    const auto sign = sample < 0.0f ? -1.0f : 1.0f;
+    const auto normalisedExcess = (magnitude - threshold) / (1.0f - threshold);
+    const auto limited = threshold + ((ceiling - threshold) * std::tanh(normalisedExcess));
+    return sign * juce::jmin(limited, ceiling);
+}
+
+void ToneflxLiteAudioProcessor::softLimitBuffer(juce::AudioBuffer<float>& buffer)
+{
+    for (auto channel = 0; channel < buffer.getNumChannels(); ++channel)
+    {
+        auto* samples = buffer.getWritePointer(channel);
+
+        for (auto sample = 0; sample < buffer.getNumSamples(); ++sample)
+            samples[sample] = softLimitSample(samples[sample]);
+    }
 }
 
 void ToneflxLiteAudioProcessor::applyGeneratedPreset(const GeneratedPreset& preset)

@@ -2,6 +2,8 @@
 
 TONEFLX Lite is a small JUCE/CMake multi-FX audio plugin focused on controlled-random sound design.
 
+The processor applies conservative generated ranges, output trim, and a final soft limiter to keep experimental chains under control while preserving the character of the effects.
+
 The first milestone is intentionally simple:
 
 - Build VST3 and Standalone targets.

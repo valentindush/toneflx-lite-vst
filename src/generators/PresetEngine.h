@@ -22,13 +22,13 @@ public:
         Range chorusDepth { 2.0f, 12.0f };
         Range chorusMix { 0.0f, 0.45f };
         Range delayTime { 90.0f, 520.0f };
-        Range delayFeedback { 0.05f, 0.42f };
+        Range delayFeedback { 0.05f, 0.38f };
         Range delayMix { 0.0f, 0.36f };
         Range reverbRoom { 0.18f, 0.62f };
         Range reverbDamping { 0.18f, 0.65f };
         Range reverbWidth { 0.45f, 1.0f };
-        Range reverbMix { 0.0f, 0.32f };
-        Range outputTrim { -3.0f, 0.0f };
+        Range reverbMix { 0.0f, 0.28f };
+        Range outputTrim { -4.5f, -1.0f };
 
         for (const auto& descriptor : descriptors)
         {
@@ -42,9 +42,9 @@ public:
             else if (descriptor == "dark")
             {
                 chorusMix = merge(chorusMix, { 0.08f, 0.35f });
-                delayFeedback = merge(delayFeedback, { 0.2f, 0.55f });
+                delayFeedback = merge(delayFeedback, { 0.18f, 0.5f });
                 reverbDamping = merge(reverbDamping, { 0.55f, 0.9f });
-                reverbMix = merge(reverbMix, { 0.12f, 0.36f });
+                reverbMix = merge(reverbMix, { 0.1f, 0.32f });
             }
             else if (descriptor == "vintage")
             {
@@ -74,9 +74,9 @@ public:
             {
                 chorusRate = merge(chorusRate, { 0.08f, 0.55f });
                 delayTime = merge(delayTime, { 320.0f, 950.0f });
-                delayFeedback = merge(delayFeedback, { 0.28f, 0.72f });
+                delayFeedback = merge(delayFeedback, { 0.24f, 0.65f });
                 reverbRoom = merge(reverbRoom, { 0.55f, 0.95f });
-                reverbMix = merge(reverbMix, { 0.22f, 0.55f });
+                reverbMix = merge(reverbMix, { 0.18f, 0.45f });
             }
         }
 
