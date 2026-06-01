@@ -1,5 +1,6 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
+#include "utils/PresetJson.h"
 
 namespace
 {
@@ -128,6 +129,31 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
     seedEditor.setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
     seedEditor.setColour(juce::TextEditor::focusedOutlineColourId, accentColour);
     addAndMakeVisible(seedEditor);
+
+    presetNameEditor.setTextToShowWhenEmpty("preset name", secondaryTextColour);
+    presetNameEditor.setJustification(juce::Justification::centredLeft);
+    presetNameEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colour(0xff242424));
+    presetNameEditor.setColour(juce::TextEditor::textColourId, textColour);
+    presetNameEditor.setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
+    presetNameEditor.setColour(juce::TextEditor::focusedOutlineColourId, accentColour);
+    addAndMakeVisible(presetNameEditor);
+
+    savePresetButton.setColour(juce::TextButton::buttonColourId, accentColour);
+    savePresetButton.setColour(juce::TextButton::textColourOffId, backgroundColour);
+    savePresetButton.onClick = [this] { saveCurrentPreset(); };
+    addAndMakeVisible(savePresetButton);
+
+    presetMenu.setTextWhenNothingSelected("saved presets");
+    presetMenu.setColour(juce::ComboBox::backgroundColourId, juce::Colour(0xff242424));
+    presetMenu.setColour(juce::ComboBox::textColourId, textColour);
+    presetMenu.setColour(juce::ComboBox::outlineColourId, juce::Colours::transparentBlack);
+    presetMenu.setColour(juce::ComboBox::arrowColourId, accentColour);
+    addAndMakeVisible(presetMenu);
+
+    loadPresetButton.setColour(juce::TextButton::buttonColourId, juce::Colour(0xff242424));
+    loadPresetButton.setColour(juce::TextButton::textColourOffId, textColour);
+    loadPresetButton.onClick = [this] { loadSelectedPreset(); };
+    addAndMakeVisible(loadPresetButton);
 
     configureRotarySlider(driveSlider);
     addAndMakeVisible(driveSlider);
@@ -295,6 +321,7 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
         reverbMixSlider);
 
     restoreGenerationControls();
+    refreshPresetMenu();
 
     setSize(760, 560);
 }
@@ -341,6 +368,64 @@ void ToneflxLiteAudioProcessorEditor::setDescriptorToggleStates(const juce::Stri
     vintageButton.setToggleState(descriptors.contains("vintage"), juce::dontSendNotification);
     wideButton.setToggleState(descriptors.contains("wide"), juce::dontSendNotification);
     dreamyButton.setToggleState(descriptors.contains("dreamy"), juce::dontSendNotification);
+}
+
+void ToneflxLiteAudioProcessorEditor::refreshPresetMenu()
+{
+    presetMenu.clear(juce::dontSendNotification);
+
+    juce::Array<juce::File> presetFiles;
+    getPresetDirectory().findChildFiles(presetFiles, juce::File::findFiles, false, "*.toneflx.json");
+
+    auto itemId = 1;
+    for (const auto& file : presetFiles)
+        presetMenu.addItem(file.getFileNameWithoutExtension().replace(".toneflx", ""), itemId++);
+}
+
+void ToneflxLiteAudioProcessorEditor::saveCurrentPreset()
+{
+    const auto name = presetNameEditor.getText().trim().isEmpty()
+        ? juce::String("Untitled")
+        : presetNameEditor.getText().trim();
+
+    const auto snapshot = audioProcessor.createPresetSnapshot(name);
+
+    if (PresetJson::saveToFile(snapshot, getPresetFileForName(snapshot.name)))
+    {
+        presetNameEditor.setText(snapshot.name, juce::dontSendNotification);
+        refreshPresetMenu();
+        presetMenu.setText(snapshot.name, juce::dontSendNotification);
+    }
+}
+
+void ToneflxLiteAudioProcessorEditor::loadSelectedPreset()
+{
+    const auto name = presetMenu.getText().trim();
+
+    if (name.isEmpty())
+        return;
+
+    PresetSnapshot snapshot;
+    if (! PresetJson::loadFromFile(getPresetFileForName(name), snapshot))
+        return;
+
+    audioProcessor.applyPresetSnapshot(snapshot);
+    presetNameEditor.setText(snapshot.name, juce::dontSendNotification);
+    seedLabel.setText("Seed " + juce::String(snapshot.preset.seed), juce::dontSendNotification);
+    seedEditor.setText(juce::String(snapshot.preset.seed), juce::dontSendNotification);
+    setDescriptorToggleStates(snapshot.descriptors);
+}
+
+juce::File ToneflxLiteAudioProcessorEditor::getPresetDirectory() const
+{
+    return juce::File::getSpecialLocation(juce::File::userDocumentsDirectory)
+        .getChildFile("TONEFLX Lite Presets");
+}
+
+juce::File ToneflxLiteAudioProcessorEditor::getPresetFileForName(const juce::String& name) const
+{
+    const auto legalName = juce::File::createLegalFileName(name.trim().isEmpty() ? "Untitled" : name.trim());
+    return getPresetDirectory().getChildFile(legalName + ".toneflx.json");
 }
 
 void ToneflxLiteAudioProcessorEditor::paint(juce::Graphics& g)
@@ -393,7 +478,17 @@ void ToneflxLiteAudioProcessorEditor::resized()
     constexpr auto groupHeaderHeight = 22;
     constexpr auto moduleHeight = 116;
 
-    bounds.removeFromTop(18);
+    bounds.removeFromTop(8);
+    auto presetRow = bounds.removeFromTop(28).withSizeKeepingCentre(560, 28);
+    presetNameEditor.setBounds(presetRow.removeFromLeft(154));
+    presetRow.removeFromLeft(8);
+    savePresetButton.setBounds(presetRow.removeFromLeft(76));
+    presetRow.removeFromLeft(16);
+    presetMenu.setBounds(presetRow.removeFromLeft(206));
+    presetRow.removeFromLeft(8);
+    loadPresetButton.setBounds(presetRow.removeFromLeft(82));
+
+    bounds.removeFromTop(12);
     auto firstRow = bounds.removeFromTop(moduleHeight).withSizeKeepingCentre(634, moduleHeight);
     auto saturationGroup = firstRow.removeFromLeft(144);
     firstRow.removeFromLeft(groupGap);

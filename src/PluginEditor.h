@@ -17,6 +17,11 @@ private:
     juce::StringArray collectSelectedDescriptors() const;
     void restoreGenerationControls();
     void setDescriptorToggleStates(const juce::StringArray& descriptors);
+    void refreshPresetMenu();
+    void saveCurrentPreset();
+    void loadSelectedPreset();
+    juce::File getPresetDirectory() const;
+    juce::File getPresetFileForName(const juce::String& name) const;
 
     ToneflxLiteAudioProcessor& audioProcessor;
 
@@ -36,6 +41,10 @@ private:
     juce::TextButton recallButton { "RECALL" };
     juce::Label seedLabel;
     juce::TextEditor seedEditor;
+    juce::TextEditor presetNameEditor;
+    juce::TextButton savePresetButton { "SAVE" };
+    juce::ComboBox presetMenu;
+    juce::TextButton loadPresetButton { "LOAD" };
     juce::Slider driveSlider;
     juce::Slider mixSlider;
     juce::Slider bitDepthSlider;
