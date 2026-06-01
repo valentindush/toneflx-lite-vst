@@ -1,0 +1,18 @@
+.DS_Store
+build/
+cmake-build-*/
+out/
+
+# JUCE/CMake generated artifacts
+JuceLibraryCode/
+BinaryData.*
+
+# Plugin build products
+*.vst3
+*.component
+*.app
+
+# Editor/system files
+.idea/
+.vscode/.cmake/
+*.swp
