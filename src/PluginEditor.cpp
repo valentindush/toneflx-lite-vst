@@ -8,16 +8,18 @@ const auto panelColour = juce::Colour(0xff1a1a1a);
 const auto accentColour = juce::Colour(0xffff8a3d);
 const auto textColour = juce::Colour(0xffeaeaea);
 const auto secondaryTextColour = juce::Colour(0xff8a8a8a);
+const auto sectionTextColour = juce::Colour(0xffffb17a);
 
 void configureRotarySlider(juce::Slider& slider)
 {
     slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 88, 24);
+    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 66, 20);
     slider.setColour(juce::Slider::rotarySliderFillColourId, accentColour);
     slider.setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colour(0xff333333));
     slider.setColour(juce::Slider::thumbColourId, textColour);
     slider.setColour(juce::Slider::textBoxTextColourId, textColour);
     slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+    slider.setColour(juce::Slider::textBoxBackgroundColourId, juce::Colours::transparentBlack);
 }
 
 void configureKnobLabel(juce::Label& label, const juce::String& text)
@@ -25,7 +27,15 @@ void configureKnobLabel(juce::Label& label, const juce::String& text)
     label.setText(text, juce::dontSendNotification);
     label.setJustificationType(juce::Justification::centred);
     label.setColour(juce::Label::textColourId, textColour);
-    label.setFont(juce::FontOptions(14.0f, juce::Font::bold));
+    label.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+}
+
+void configureSectionLabel(juce::Label& label, const juce::String& text)
+{
+    label.setText(text, juce::dontSendNotification);
+    label.setJustificationType(juce::Justification::centred);
+    label.setColour(juce::Label::textColourId, sectionTextColour);
+    label.setFont(juce::FontOptions(13.0f, juce::Font::bold));
 }
 
 void configureDescriptorButton(juce::TextButton& button)
@@ -35,6 +45,12 @@ void configureDescriptorButton(juce::TextButton& button)
     button.setColour(juce::TextButton::buttonOnColourId, accentColour);
     button.setColour(juce::TextButton::textColourOffId, textColour);
     button.setColour(juce::TextButton::textColourOnId, backgroundColour);
+}
+
+void layoutKnob(juce::Rectangle<int> area, juce::Label& label, juce::Slider& slider)
+{
+    label.setBounds(area.removeFromTop(18));
+    slider.setBounds(area);
 }
 }
 
@@ -53,6 +69,21 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
     statusLabel.setColour(juce::Label::textColourId, secondaryTextColour);
     statusLabel.setFont(juce::FontOptions(15.0f));
     addAndMakeVisible(statusLabel);
+
+    configureSectionLabel(saturationSectionLabel, "SATURATION");
+    addAndMakeVisible(saturationSectionLabel);
+
+    configureSectionLabel(bitcrusherSectionLabel, "BITCRUSHER");
+    addAndMakeVisible(bitcrusherSectionLabel);
+
+    configureSectionLabel(chorusSectionLabel, "CHORUS");
+    addAndMakeVisible(chorusSectionLabel);
+
+    configureSectionLabel(delaySectionLabel, "DELAY");
+    addAndMakeVisible(delaySectionLabel);
+
+    configureSectionLabel(reverbSectionLabel, "REVERB");
+    addAndMakeVisible(reverbSectionLabel);
 
     for (auto* button : { &warmButton, &darkButton, &vintageButton, &wideButton, &dreamyButton })
     {
@@ -121,7 +152,6 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
         mixSlider);
 
     configureRotarySlider(bitDepthSlider);
-    bitDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 88, 24);
     addAndMakeVisible(bitDepthSlider);
 
     configureKnobLabel(bitDepthLabel, "Bits");
@@ -266,7 +296,7 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
 
     restoreGenerationControls();
 
-    setSize(900, 940);
+    setSize(760, 560);
 }
 
 ToneflxLiteAudioProcessorEditor::~ToneflxLiteAudioProcessorEditor() = default;
@@ -317,7 +347,7 @@ void ToneflxLiteAudioProcessorEditor::paint(juce::Graphics& g)
 {
     g.fillAll(backgroundColour);
 
-    auto bounds = getLocalBounds().toFloat().reduced(24.0f);
+    auto bounds = getLocalBounds().toFloat().reduced(16.0f);
     g.setColour(panelColour);
     g.fillRoundedRectangle(bounds, 8.0f);
 
@@ -327,14 +357,15 @@ void ToneflxLiteAudioProcessorEditor::paint(juce::Graphics& g)
 
 void ToneflxLiteAudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds().reduced(32);
-    titleLabel.setBounds(bounds.removeFromTop(64));
-    statusLabel.setBounds(bounds.removeFromTop(28));
+    auto bounds = getLocalBounds().reduced(30, 24);
+    auto header = bounds.removeFromTop(50);
+    titleLabel.setBounds(header.removeFromTop(30));
+    statusLabel.setBounds(header);
 
-    bounds.removeFromTop(16);
-    auto descriptorRow = bounds.removeFromTop(36).withSizeKeepingCentre(622, 36);
-    constexpr auto descriptorButtonWidth = 88;
-    constexpr auto descriptorGap = 10;
+    bounds.removeFromTop(10);
+    auto descriptorRow = bounds.removeFromTop(32).withSizeKeepingCentre(564, 32);
+    constexpr auto descriptorButtonWidth = 78;
+    constexpr auto descriptorGap = 8;
 
     warmButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
     descriptorRow.removeFromLeft(descriptorGap);
@@ -345,100 +376,86 @@ void ToneflxLiteAudioProcessorEditor::resized()
     wideButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
     descriptorRow.removeFromLeft(descriptorGap);
     dreamyButton.setBounds(descriptorRow.removeFromLeft(descriptorButtonWidth));
-    descriptorRow.removeFromLeft(24);
-    generateButton.setBounds(descriptorRow.removeFromLeft(118));
+    descriptorRow.removeFromLeft(18);
+    generateButton.setBounds(descriptorRow.removeFromLeft(108));
 
-    bounds.removeFromTop(10);
-    auto seedRow = bounds.removeFromTop(32).withSizeKeepingCentre(430, 32);
-    seedLabel.setBounds(seedRow.removeFromLeft(150));
+    bounds.removeFromTop(8);
+    auto seedRow = bounds.removeFromTop(28).withSizeKeepingCentre(392, 28);
+    seedLabel.setBounds(seedRow.removeFromLeft(132));
     seedRow.removeFromLeft(12);
-    seedEditor.setBounds(seedRow.removeFromLeft(150));
+    seedEditor.setBounds(seedRow.removeFromLeft(130));
     seedRow.removeFromLeft(12);
-    recallButton.setBounds(seedRow.removeFromLeft(106));
+    recallButton.setBounds(seedRow.removeFromLeft(94));
 
-    bounds.removeFromTop(20);
-    auto firstRow = bounds.removeFromTop(110).withSizeKeepingCentre(340, 110);
+    constexpr auto groupGap = 14;
+    constexpr auto knobWidth = 68;
+    constexpr auto knobGap = 8;
+    constexpr auto groupHeaderHeight = 22;
+    constexpr auto moduleHeight = 116;
+
+    bounds.removeFromTop(18);
+    auto firstRow = bounds.removeFromTop(moduleHeight).withSizeKeepingCentre(634, moduleHeight);
+    auto saturationGroup = firstRow.removeFromLeft(144);
+    firstRow.removeFromLeft(groupGap);
+    auto bitcrusherGroup = firstRow.removeFromLeft(220);
+    firstRow.removeFromLeft(groupGap);
+    auto chorusGroup = firstRow.removeFromLeft(220);
+
     bounds.removeFromTop(16);
-    auto secondRow = bounds.removeFromTop(110).withSizeKeepingCentre(530, 110);
-    bounds.removeFromTop(16);
-    auto thirdRow = bounds.removeFromTop(110).withSizeKeepingCentre(530, 110);
-    bounds.removeFromTop(16);
-    auto fourthRow = bounds.removeFromTop(110).withSizeKeepingCentre(530, 110);
-    bounds.removeFromTop(16);
-    auto fifthRow = bounds.removeFromTop(110).withSizeKeepingCentre(720, 110);
+    auto secondRow = bounds.removeFromTop(moduleHeight).withSizeKeepingCentre(524, moduleHeight);
+    auto delayGroup = secondRow.removeFromLeft(220);
+    secondRow.removeFromLeft(groupGap);
+    auto reverbGroup = secondRow.removeFromLeft(290);
 
-    auto driveArea = firstRow.removeFromLeft(150);
-    firstRow.removeFromLeft(40);
-    auto mixArea = firstRow.removeFromLeft(150);
+    saturationSectionLabel.setBounds(saturationGroup.removeFromTop(groupHeaderHeight));
+    bitcrusherSectionLabel.setBounds(bitcrusherGroup.removeFromTop(groupHeaderHeight));
+    chorusSectionLabel.setBounds(chorusGroup.removeFromTop(groupHeaderHeight));
+    delaySectionLabel.setBounds(delayGroup.removeFromTop(groupHeaderHeight));
+    reverbSectionLabel.setBounds(reverbGroup.removeFromTop(groupHeaderHeight));
 
-    auto bitDepthArea = secondRow.removeFromLeft(150);
-    secondRow.removeFromLeft(40);
-    auto bitRateArea = secondRow.removeFromLeft(150);
-    secondRow.removeFromLeft(40);
-    auto bitMixArea = secondRow.removeFromLeft(150);
+    auto driveArea = saturationGroup.removeFromLeft(knobWidth);
+    saturationGroup.removeFromLeft(knobGap);
+    auto mixArea = saturationGroup.removeFromLeft(knobWidth);
 
-    auto chorusRateArea = thirdRow.removeFromLeft(150);
-    thirdRow.removeFromLeft(40);
-    auto chorusDepthArea = thirdRow.removeFromLeft(150);
-    thirdRow.removeFromLeft(40);
-    auto chorusMixArea = thirdRow.removeFromLeft(150);
+    auto bitDepthArea = bitcrusherGroup.removeFromLeft(knobWidth);
+    bitcrusherGroup.removeFromLeft(knobGap);
+    auto bitRateArea = bitcrusherGroup.removeFromLeft(knobWidth);
+    bitcrusherGroup.removeFromLeft(knobGap);
+    auto bitMixArea = bitcrusherGroup.removeFromLeft(knobWidth);
 
-    auto delayTimeArea = fourthRow.removeFromLeft(150);
-    fourthRow.removeFromLeft(40);
-    auto delayFeedbackArea = fourthRow.removeFromLeft(150);
-    fourthRow.removeFromLeft(40);
-    auto delayMixArea = fourthRow.removeFromLeft(150);
+    auto chorusRateArea = chorusGroup.removeFromLeft(knobWidth);
+    chorusGroup.removeFromLeft(knobGap);
+    auto chorusDepthArea = chorusGroup.removeFromLeft(knobWidth);
+    chorusGroup.removeFromLeft(knobGap);
+    auto chorusMixArea = chorusGroup.removeFromLeft(knobWidth);
 
-    auto reverbRoomArea = fifthRow.removeFromLeft(150);
-    fifthRow.removeFromLeft(40);
-    auto reverbDampingArea = fifthRow.removeFromLeft(150);
-    fifthRow.removeFromLeft(40);
-    auto reverbWidthArea = fifthRow.removeFromLeft(150);
-    fifthRow.removeFromLeft(40);
-    auto reverbMixArea = fifthRow.removeFromLeft(150);
+    auto delayTimeArea = delayGroup.removeFromLeft(knobWidth);
+    delayGroup.removeFromLeft(knobGap);
+    auto delayFeedbackArea = delayGroup.removeFromLeft(knobWidth);
+    delayGroup.removeFromLeft(knobGap);
+    auto delayMixArea = delayGroup.removeFromLeft(knobWidth);
 
-    driveLabel.setBounds(driveArea.removeFromTop(24));
-    driveSlider.setBounds(driveArea);
+    auto reverbRoomArea = reverbGroup.removeFromLeft(knobWidth);
+    reverbGroup.removeFromLeft(6);
+    auto reverbDampingArea = reverbGroup.removeFromLeft(knobWidth);
+    reverbGroup.removeFromLeft(6);
+    auto reverbWidthArea = reverbGroup.removeFromLeft(knobWidth);
+    reverbGroup.removeFromLeft(6);
+    auto reverbMixArea = reverbGroup.removeFromLeft(knobWidth);
 
-    mixLabel.setBounds(mixArea.removeFromTop(24));
-    mixSlider.setBounds(mixArea);
-
-    bitDepthLabel.setBounds(bitDepthArea.removeFromTop(24));
-    bitDepthSlider.setBounds(bitDepthArea);
-
-    bitRateLabel.setBounds(bitRateArea.removeFromTop(24));
-    bitRateSlider.setBounds(bitRateArea);
-
-    bitMixLabel.setBounds(bitMixArea.removeFromTop(24));
-    bitMixSlider.setBounds(bitMixArea);
-
-    chorusRateLabel.setBounds(chorusRateArea.removeFromTop(24));
-    chorusRateSlider.setBounds(chorusRateArea);
-
-    chorusDepthLabel.setBounds(chorusDepthArea.removeFromTop(24));
-    chorusDepthSlider.setBounds(chorusDepthArea);
-
-    chorusMixLabel.setBounds(chorusMixArea.removeFromTop(24));
-    chorusMixSlider.setBounds(chorusMixArea);
-
-    delayTimeLabel.setBounds(delayTimeArea.removeFromTop(24));
-    delayTimeSlider.setBounds(delayTimeArea);
-
-    delayFeedbackLabel.setBounds(delayFeedbackArea.removeFromTop(24));
-    delayFeedbackSlider.setBounds(delayFeedbackArea);
-
-    delayMixLabel.setBounds(delayMixArea.removeFromTop(24));
-    delayMixSlider.setBounds(delayMixArea);
-
-    reverbRoomLabel.setBounds(reverbRoomArea.removeFromTop(24));
-    reverbRoomSlider.setBounds(reverbRoomArea);
-
-    reverbDampingLabel.setBounds(reverbDampingArea.removeFromTop(24));
-    reverbDampingSlider.setBounds(reverbDampingArea);
-
-    reverbWidthLabel.setBounds(reverbWidthArea.removeFromTop(24));
-    reverbWidthSlider.setBounds(reverbWidthArea);
-
-    reverbMixLabel.setBounds(reverbMixArea.removeFromTop(24));
-    reverbMixSlider.setBounds(reverbMixArea);
+    layoutKnob(driveArea, driveLabel, driveSlider);
+    layoutKnob(mixArea, mixLabel, mixSlider);
+    layoutKnob(bitDepthArea, bitDepthLabel, bitDepthSlider);
+    layoutKnob(bitRateArea, bitRateLabel, bitRateSlider);
+    layoutKnob(bitMixArea, bitMixLabel, bitMixSlider);
+    layoutKnob(chorusRateArea, chorusRateLabel, chorusRateSlider);
+    layoutKnob(chorusDepthArea, chorusDepthLabel, chorusDepthSlider);
+    layoutKnob(chorusMixArea, chorusMixLabel, chorusMixSlider);
+    layoutKnob(delayTimeArea, delayTimeLabel, delayTimeSlider);
+    layoutKnob(delayFeedbackArea, delayFeedbackLabel, delayFeedbackSlider);
+    layoutKnob(delayMixArea, delayMixLabel, delayMixSlider);
+    layoutKnob(reverbRoomArea, reverbRoomLabel, reverbRoomSlider);
+    layoutKnob(reverbDampingArea, reverbDampingLabel, reverbDampingSlider);
+    layoutKnob(reverbWidthArea, reverbWidthLabel, reverbWidthSlider);
+    layoutKnob(reverbMixArea, reverbMixLabel, reverbMixSlider);
 }

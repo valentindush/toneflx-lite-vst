@@ -22,6 +22,11 @@ private:
 
     juce::Label titleLabel;
     juce::Label statusLabel;
+    juce::Label saturationSectionLabel;
+    juce::Label bitcrusherSectionLabel;
+    juce::Label chorusSectionLabel;
+    juce::Label delaySectionLabel;
+    juce::Label reverbSectionLabel;
     juce::TextButton warmButton { "warm" };
     juce::TextButton darkButton { "dark" };
     juce::TextButton vintageButton { "vintage" };
