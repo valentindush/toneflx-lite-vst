@@ -86,6 +86,9 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
     configureSectionLabel(reverbSectionLabel, "REVERB");
     addAndMakeVisible(reverbSectionLabel);
 
+    configureSectionLabel(outputSectionLabel, "OUTPUT");
+    addAndMakeVisible(outputSectionLabel);
+
     for (auto* button : { &warmButton, &darkButton, &vintageButton, &harshButton, &wideButton, &dreamyButton })
     {
         configureDescriptorButton(*button);
@@ -320,6 +323,17 @@ ToneflxLiteAudioProcessorEditor::ToneflxLiteAudioProcessorEditor(ToneflxLiteAudi
         ToneflxParameters::reverbMix,
         reverbMixSlider);
 
+    configureRotarySlider(outputTrimSlider);
+    addAndMakeVisible(outputTrimSlider);
+
+    configureKnobLabel(outputTrimLabel, "Trim");
+    addAndMakeVisible(outputTrimLabel);
+
+    outputTrimAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        audioProcessor.parameters,
+        ToneflxParameters::outputTrim,
+        outputTrimSlider);
+
     restoreGenerationControls();
     refreshPresetMenu();
 
@@ -503,16 +517,19 @@ void ToneflxLiteAudioProcessorEditor::resized()
     auto chorusGroup = firstRow.removeFromLeft(220);
 
     bounds.removeFromTop(16);
-    auto secondRow = bounds.removeFromTop(moduleHeight).withSizeKeepingCentre(524, moduleHeight);
+    auto secondRow = bounds.removeFromTop(moduleHeight).withSizeKeepingCentre(606, moduleHeight);
     auto delayGroup = secondRow.removeFromLeft(220);
     secondRow.removeFromLeft(groupGap);
     auto reverbGroup = secondRow.removeFromLeft(290);
+    secondRow.removeFromLeft(groupGap);
+    auto outputGroup = secondRow.removeFromLeft(68);
 
     saturationSectionLabel.setBounds(saturationGroup.removeFromTop(groupHeaderHeight));
     bitcrusherSectionLabel.setBounds(bitcrusherGroup.removeFromTop(groupHeaderHeight));
     chorusSectionLabel.setBounds(chorusGroup.removeFromTop(groupHeaderHeight));
     delaySectionLabel.setBounds(delayGroup.removeFromTop(groupHeaderHeight));
     reverbSectionLabel.setBounds(reverbGroup.removeFromTop(groupHeaderHeight));
+    outputSectionLabel.setBounds(outputGroup.removeFromTop(groupHeaderHeight));
 
     auto driveArea = saturationGroup.removeFromLeft(knobWidth);
     saturationGroup.removeFromLeft(knobGap);
@@ -543,6 +560,7 @@ void ToneflxLiteAudioProcessorEditor::resized()
     auto reverbWidthArea = reverbGroup.removeFromLeft(knobWidth);
     reverbGroup.removeFromLeft(6);
     auto reverbMixArea = reverbGroup.removeFromLeft(knobWidth);
+    auto outputTrimArea = outputGroup.removeFromLeft(knobWidth);
 
     layoutKnob(driveArea, driveLabel, driveSlider);
     layoutKnob(mixArea, mixLabel, mixSlider);
@@ -559,4 +577,5 @@ void ToneflxLiteAudioProcessorEditor::resized()
     layoutKnob(reverbDampingArea, reverbDampingLabel, reverbDampingSlider);
     layoutKnob(reverbWidthArea, reverbWidthLabel, reverbWidthSlider);
     layoutKnob(reverbMixArea, reverbMixLabel, reverbMixSlider);
+    layoutKnob(outputTrimArea, outputTrimLabel, outputTrimSlider);
 }

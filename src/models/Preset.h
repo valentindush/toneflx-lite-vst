@@ -26,6 +26,8 @@ struct GeneratedPreset
     float reverbDamping = 0.35f;
     float reverbWidth = 0.8f;
     float reverbMix = 0.2f;
+
+    float outputTrim = 0.0f;
 };
 
 struct PresetSnapshot

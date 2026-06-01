@@ -6,7 +6,7 @@ The first milestone is intentionally simple:
 
 - Build VST3 and Standalone targets.
 - Process audio through saturation, bitcrusher, chorus, delay, and reverb modules.
-- Provide a minimal editor window with saturation, bitcrusher, chorus, delay, and reverb controls.
+- Provide a compact editor window with saturation, bitcrusher, chorus, delay, reverb, and output trim controls.
 - Generate parameter sets from simple descriptors: warm, dark, vintage, harsh, wide, and dreamy.
 - Establish a folder structure for DSP modules, preset generation, and UI components.
 

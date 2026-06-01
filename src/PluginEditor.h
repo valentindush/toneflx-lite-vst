@@ -32,6 +32,7 @@ private:
     juce::Label chorusSectionLabel;
     juce::Label delaySectionLabel;
     juce::Label reverbSectionLabel;
+    juce::Label outputSectionLabel;
     juce::TextButton warmButton { "warm" };
     juce::TextButton darkButton { "dark" };
     juce::TextButton vintageButton { "vintage" };
@@ -61,6 +62,7 @@ private:
     juce::Slider reverbDampingSlider;
     juce::Slider reverbWidthSlider;
     juce::Slider reverbMixSlider;
+    juce::Slider outputTrimSlider;
     juce::Label driveLabel;
     juce::Label mixLabel;
     juce::Label bitDepthLabel;
@@ -76,6 +78,7 @@ private:
     juce::Label reverbDampingLabel;
     juce::Label reverbWidthLabel;
     juce::Label reverbMixLabel;
+    juce::Label outputTrimLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> mixAttachment;
@@ -92,6 +95,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> reverbDampingAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> reverbWidthAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> reverbMixAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputTrimAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ToneflxLiteAudioProcessorEditor)
 };

@@ -35,6 +35,7 @@ ToneflxLiteAudioProcessor::ToneflxLiteAudioProcessor()
     reverbDampingParameter = parameters.getRawParameterValue(ToneflxParameters::reverbDamping);
     reverbWidthParameter = parameters.getRawParameterValue(ToneflxParameters::reverbWidth);
     reverbMixParameter = parameters.getRawParameterValue(ToneflxParameters::reverbMix);
+    outputTrimParameter = parameters.getRawParameterValue(ToneflxParameters::outputTrim);
 }
 
 ToneflxLiteAudioProcessor::~ToneflxLiteAudioProcessor() = default;
@@ -205,6 +206,9 @@ void ToneflxLiteAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
         reverb.setMix(reverbMixParameter->load());
 
     reverb.process(buffer);
+
+    if (outputTrimParameter != nullptr)
+        buffer.applyGain(juce::Decibels::decibelsToGain(outputTrimParameter->load()));
 }
 
 bool ToneflxLiteAudioProcessor::hasEditor() const
@@ -293,6 +297,7 @@ PresetSnapshot ToneflxLiteAudioProcessor::createPresetSnapshot(const juce::Strin
     snapshot.preset.reverbDamping = getParameterValue(ToneflxParameters::reverbDamping);
     snapshot.preset.reverbWidth = getParameterValue(ToneflxParameters::reverbWidth);
     snapshot.preset.reverbMix = getParameterValue(ToneflxParameters::reverbMix);
+    snapshot.preset.outputTrim = getParameterValue(ToneflxParameters::outputTrim);
 
     return snapshot;
 }
@@ -328,6 +333,7 @@ void ToneflxLiteAudioProcessor::applyGeneratedPreset(const GeneratedPreset& pres
     setParameterValue(ToneflxParameters::reverbDamping, preset.reverbDamping);
     setParameterValue(ToneflxParameters::reverbWidth, preset.reverbWidth);
     setParameterValue(ToneflxParameters::reverbMix, preset.reverbMix);
+    setParameterValue(ToneflxParameters::outputTrim, preset.outputTrim);
 }
 
 void ToneflxLiteAudioProcessor::storeGenerationMetadata(const juce::StringArray& descriptors, std::uint32_t seed)
@@ -498,6 +504,13 @@ ToneflxLiteAudioProcessor::APVTS::ParameterLayout ToneflxLiteAudioProcessor::cre
             .withValueFromStringFunction([](const auto& text) {
                 return text.getFloatValue() / 100.0f;
             })));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID { ToneflxParameters::outputTrim, 1 },
+        "Output Trim",
+        juce::NormalisableRange<float> { -24.0f, 6.0f, 0.1f },
+        0.0f,
+        juce::AudioParameterFloatAttributes().withLabel("dB")));
 
     return { params.begin(), params.end() };
 }

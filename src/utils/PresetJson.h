@@ -34,6 +34,7 @@ public:
         parameters->setProperty("reverbDamping", snapshot.preset.reverbDamping);
         parameters->setProperty("reverbWidth", snapshot.preset.reverbWidth);
         parameters->setProperty("reverbMix", snapshot.preset.reverbMix);
+        parameters->setProperty("outputTrim", snapshot.preset.outputTrim);
         root->setProperty("parameters", juce::var(parameters.release()));
 
         return juce::JSON::toString(juce::var(root.release()), true);
@@ -76,6 +77,7 @@ public:
         snapshot.preset.reverbDamping = getFloat(*parameterObject, "reverbDamping");
         snapshot.preset.reverbWidth = getFloat(*parameterObject, "reverbWidth");
         snapshot.preset.reverbMix = getFloat(*parameterObject, "reverbMix");
+        snapshot.preset.outputTrim = getFloat(*parameterObject, "outputTrim");
 
         return true;
     }

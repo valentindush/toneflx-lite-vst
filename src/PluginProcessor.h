@@ -25,6 +25,7 @@ static constexpr auto reverbRoomSize = "reverbRoomSize";
 static constexpr auto reverbDamping = "reverbDamping";
 static constexpr auto reverbWidth = "reverbWidth";
 static constexpr auto reverbMix = "reverbMix";
+static constexpr auto outputTrim = "outputTrim";
 }
 
 class ToneflxLiteAudioProcessor final : public juce::AudioProcessor
@@ -100,6 +101,7 @@ private:
     std::atomic<float>* reverbDampingParameter = nullptr;
     std::atomic<float>* reverbWidthParameter = nullptr;
     std::atomic<float>* reverbMixParameter = nullptr;
+    std::atomic<float>* outputTrimParameter = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ToneflxLiteAudioProcessor)
 };

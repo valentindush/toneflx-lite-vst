@@ -28,6 +28,7 @@ public:
         Range reverbDamping { 0.18f, 0.65f };
         Range reverbWidth { 0.45f, 1.0f };
         Range reverbMix { 0.0f, 0.32f };
+        Range outputTrim { -3.0f, 0.0f };
 
         for (const auto& descriptor : descriptors)
         {
@@ -60,6 +61,7 @@ public:
                 bitRate = merge(bitRate, { 6.0f, 24.0f });
                 bitMix = merge(bitMix, { 0.28f, 0.7f });
                 reverbMix = merge(reverbMix, { 0.0f, 0.18f });
+                outputTrim = merge(outputTrim, { -6.0f, -2.0f });
             }
             else if (descriptor == "wide")
             {
@@ -93,6 +95,7 @@ public:
         preset.reverbDamping = randomFloat(rng, reverbDamping);
         preset.reverbWidth = randomFloat(rng, reverbWidth);
         preset.reverbMix = randomFloat(rng, reverbMix);
+        preset.outputTrim = randomFloat(rng, outputTrim);
 
         return preset;
     }
