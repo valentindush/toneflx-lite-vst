@@ -1,0 +1,42 @@
+name: Build Release VST3
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-macos-vst3:
+    name: Build macOS VST3
+    runs-on: macos-15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: brew install cmake ninja
+
+      - name: Configure Release build
+        run: cmake --preset macos-release
+
+      - name: Build plugin and tests
+        run: cmake --build --preset macos-release
+
+      - name: Run tests
+        run: ctest --test-dir build-release --output-on-failure
+
+      - name: Package VST3 bundle
+        run: |
+          mkdir -p artifacts
+          ditto -c -k --sequesterRsrc --keepParent \
+            "build-release/ToneflxLite_artefacts/Release/VST3/TONEFLX Lite.vst3" \
+            "artifacts/TONEFLX-Lite-macos-vst3-${{ github.sha }}.zip"
+
+      - name: Upload VST3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TONEFLX-Lite-macos-vst3
+          path: artifacts/TONEFLX-Lite-macos-vst3-${{ github.sha }}.zip
+          if-no-files-found: error

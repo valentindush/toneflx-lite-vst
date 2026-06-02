@@ -30,6 +30,13 @@ cmake --preset macos-debug
 cmake --build --preset macos-debug
 ```
 
+For a release build:
+
+```bash
+cmake --preset macos-release
+cmake --build --preset macos-release
+```
+
 ## Test
 
 ```bash
